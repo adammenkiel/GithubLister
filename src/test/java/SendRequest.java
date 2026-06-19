@@ -1,5 +1,6 @@
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
+import pl.publicprojects.githublister.basic.Branch;
 import pl.publicprojects.githublister.basic.Repository;
 import pl.publicprojects.githublister.basic.RequestService;
 
@@ -12,8 +13,12 @@ public class SendRequest {
             System.out.println(repository.getRepositoryName() + " - Forked: " + repository.isFork());
         }
         System.out.println("Without forks:");
-        for(Repository repository : requestService.getNotForkedRepositoryList("adammenkiel")) {
-            System.out.println(repository.getRepositoryName());
+        String username = "adammenkiel";
+        for(Repository repository : requestService.getNotForkedRepositoryList(username)) {
+            System.out.println(repository.getRepositoryName() + " - ");
+            for(Branch branch : requestService.getBranchList(username, repository.getRepositoryName())) {
+                System.out.println(branch.getBranchName() + " " + branch.getCommit().getSha() + " " + branch.getCommit().getUrl());
+            }
         }
     }
 }

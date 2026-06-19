@@ -11,12 +11,33 @@ public class RequestService {
     public List<Repository> getRepositoryList(String username) {
         RestClient restClient = RestClient.create();
         return restClient.get()
-                .uri("https://api.github.com/users/"+username+"/repos")
+                .uri("https://api.github.com/users/" + username + "/repos")
+                .retrieve()
+                .body(new ParameterizedTypeReference<>(){});
+    }
+
+    public List<Branch> getBranchList(String username, String repository) {
+        RestClient restClient = RestClient.create();
+        return restClient.get()
+                .uri("https://api.github.com/repos/" + username + "/" + repository + "/branches")
                 .retrieve()
                 .body(new ParameterizedTypeReference<>(){});
     }
 
     public List<Repository> getNotForkedRepositoryList(String username) {
-        return this.getRepositoryList(username).stream().filter(repo -> !repo.isFork()).toList();
+        List<Repository> repoList = this.getRepositoryList(username)
+                .stream()
+                .filter(repo -> !repo.isFork())
+                .toList();
+
+        for(Repository repo : repoList) {
+            repo.setBranches(
+                    this.getBranchList(username, repo.getRepositoryName())
+            );
+        }
+
+        return repoList;
     }
+
+
 }
